@@ -1,0 +1,29 @@
+language: python
+
+python:
+    - "2.7"
+    - "3.5"
+
+env:
+    - DJANGO=django==1.8.*
+    - DJANGO=django==1.9.*
+
+install:
+    - pip install -r test_requirements.txt
+    - pip install $DJANGO
+    - pip install coveralls
+
+script:
+    - ./runtests.py
+    #nosetests
+
+matrix:
+    exclude:
+        - python: "3.5"
+          env: DJANGO=django==1.9.*
+
+notifications:
+    slack: nonegroupteam:K9RJ3Ksb5pOrYfc6sRuaWm3Z
+
+after_success:
+    - coveralls
