@@ -1,6 +1,7 @@
 # Let-s-Go
-Let's Go
 
+[![Coverage Status](https://coveralls.io/repos/github/NoneGroupTeam/Let-s-Go/badge.svg?branch=master)](https://coveralls.io/github/NoneGroupTeam/Let-s-Go?branch=master)
+[![Build Status](https://travis-ci.org/NoneGroupTeam/Let-s-Go.svg?branch=master)](https://travis-ci.org/NoneGroupTeam/Let-s-Go)  
 
 ## Code
 

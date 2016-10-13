@@ -23,6 +23,7 @@ matrix:
           env: DJANGO=django==1.9.*
 
 notifications:
+    email: false
     slack: nonegroupteam:K9RJ3Ksb5pOrYfc6sRuaWm3Z
 
 after_success:
