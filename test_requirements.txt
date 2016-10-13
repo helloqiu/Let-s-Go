@@ -5,4 +5,4 @@ ipdb
 mixer
 mock
 tox
--r vendor_requirements.txt
+-r requirements.txt

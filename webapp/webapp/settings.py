@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-
+import sys
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,7 +25,11 @@ SECRET_KEY = 'fopfdg5g999+e8&sk39q(%unup0d_b_e#p$jeq#qhw27d=v0#t'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost',
+                 '127.0.0.1:8000',
+                 'none.lc4t.me',
+                 'letsgo.lc4t.me'
+                 ]
 
 
 # Application definition
@@ -37,13 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'app',
 ]
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -51,6 +56,8 @@ MIDDLEWARE_CLASSES = [
 ]
 
 ROOT_URLCONF = 'webapp.urls'
+AUTH_USER_MODEL = "app.AppUser"
+# AUTH_PROFILE_MODULE = 'app.Profile'
 
 TEMPLATES = [
     {
@@ -73,13 +80,24 @@ WSGI_APPLICATION = 'webapp.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+TESTING = ((" ".join(sys.argv)).find('manage.py test') != -1)
+if not TESTING:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'letsgo',
+            'USER': 'root',
+            'PASSWORD': '*'
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'NAME': 'lintcode',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'db.sqlite3'
+        },
+    }
 
 
 # Password validation
@@ -87,9 +105,9 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-Hans'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Chongqing'
 
 USE_I18N = True
 

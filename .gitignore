@@ -6,7 +6,8 @@
 .tox/
 app_media/
 app_static/
-db.sqlite
+db.sqlite*
+db_pwd
 dist/
 docs/_build/
 local_settings.py
