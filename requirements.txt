@@ -1,2 +1,2 @@
-django
--r vendor_requirements.txt
+django-compat
+pymysql

@@ -5,8 +5,7 @@ python:
     - "3.5"
 
 env:
-    - DJANGO=django==1.8.*
-    - DJANGO=django==1.9.*
+    - DJANGO=django==1.10.*
 
 install:
     - pip install -r test_requirements.txt
@@ -20,7 +19,7 @@ script:
 matrix:
     exclude:
         - python: "3.5"
-          env: DJANGO=django==1.9.*
+          env: DJANGO=django==1.10.*
 
 notifications:
     email: false
