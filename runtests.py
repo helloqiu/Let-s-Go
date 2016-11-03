@@ -12,11 +12,8 @@ from fabric.colors import green, red
 if __name__ == '__main__':
     local('pip install -r test_requirements.txt')
     local('flake8 --ignore=E126 --ignore=W391 --ignore=E501 --statistics'
-          ' --exclude=submodules,migrations,build,.tox,.git,runtests.py')
-    local('coverage run --source="webapp" webapp/manage.py test -v 2'
-          ' --traceback --failfast'
-          ' --settings=webapp.settings'
-          ' --pattern="*_tests.py"')
+          ' --exclude=submodules,migrations,build,.tox,.git,runtests.py,venv')
+    local('coverage run --source="webapp" webapp/manage.py test -v 2')
     local('coverage html -d coverage --omit="*__init__*,*/settings/*,'
           '*/migrations/*,*/tests/*,*admin*"')
     total_line = local('grep -n pc_cov coverage/index.html', capture=True)

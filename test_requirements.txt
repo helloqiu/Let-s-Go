@@ -5,4 +5,7 @@ ipdb
 mixer
 mock
 tox
+pytest==3.0.3
+pytest-django==3.0.0
+pytest-pythonpath==0.7.1
 -r requirements.txt
