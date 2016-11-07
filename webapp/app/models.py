@@ -6,12 +6,12 @@ from django.contrib.auth.models import AbstractUser, UserManager
 class AppUser(AbstractUser):
     objects = UserManager()
     phone = CharField('phone', max_length=18, blank=True, null=True)
-    gender = CharField('gender', max_length=2, blank=True, null=True)
+    gender = CharField('gender', max_length=2, blank=True, null=True)   # 0->man
     birthday = DateField('birthday', blank=True, null=True)
     place = ManyToManyField('Place', blank=True)
 
     def __str__(self):
-        return '[%s],id[%d]' % (self.username, self.id)
+        return '[%s],id[%s]' % (self.username, self.id)
 
     class Admin:
         list_display = ('username')
