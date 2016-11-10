@@ -13,8 +13,8 @@ install:
     - pip install coveralls
 
 script:
-    - ./runtests.py
-    #nosetests
+    - sh lint.sh
+    - cd webapp && coverage run manage.py test
 
 matrix:
     exclude:
