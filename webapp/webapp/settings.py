@@ -26,7 +26,7 @@ SECRET_KEY = 'fopfdg5g999+e8&sk39q(%unup0d_b_e#p$jeq#qhw27d=v0#t'
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost',
-                 '127.0.0.1:8000',
+                 '127.0.0.1',
                  'none.lc4t.me',
                  'letsgo.lc4t.me'
                  ]
