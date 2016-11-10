@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 from app.models import AppUser
+import json
 
 
 @pytest.mark.django_db
@@ -21,5 +22,6 @@ def test_user(client):
 
     response = client.post(url, data={'username': 'test', 'password': 'test'})
     assert response.status_code == 200
-    assert response.json()['username'] == 'test'
-    assert response.json()['user_id'] == user.pk
+    response = json.loads(response.json()['message'])
+    assert response['username'] == 'test'
+    assert response['user_id'] == user.pk
