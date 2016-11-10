@@ -13,7 +13,7 @@ install:
 
 script:
     - sh lint.sh
-    - cd webapp && coverage run manage.py test
+    - cd webapp && coverage run --include="./*" manage.py test
 
 notifications:
     email: false
