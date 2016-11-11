@@ -78,25 +78,13 @@ WSGI_APPLICATION = 'webapp.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-TESTING = ((" ".join(sys.argv)).find('manage.py test') != -1)
-if not TESTING:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'letsgo',
-            'USER': 'root',
-            'PASSWORD': '*'
-
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'NAME': 'lintcode',
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'db.sqlite3'
-        },
-    }
+DATABASES = {
+    'default': {
+        'NAME': 'lintcode',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'db.sqlite3'
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators

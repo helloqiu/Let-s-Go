@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import pytest
+
+
 class PytestTestRunner(object):
     """Runs pytest to discover and run tests."""
 
@@ -12,7 +15,6 @@ class PytestTestRunner(object):
 
         It translates some of Django's test command option to pytest's.
         """
-        import pytest
 
         argv = []
         if self.verbosity == 0:
