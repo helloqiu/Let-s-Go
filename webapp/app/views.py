@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, logout
+from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
 import json
@@ -73,6 +73,7 @@ def user_login(request):
             if user.is_active:
                 message = JSON(user_id=user.id, username=user.username)
                 data = JSON(code=LOGIN_OK_CODE, status=True, message=message)
+                login(request, user)
             else:
                 data = JSON(code=NOT_ACTIVE_CODE, status=False,
                             message=NOT_ACTIVE)
@@ -126,7 +127,8 @@ def user_register(request):
                                                         birthday=birthday)
                     message = JSON(user_id=user.id, username=user.username)
                     data = JSON(code=REG_OK_CODE, status=True, message=message)
-                except:
+                except Exception as e:
+                    print(e)
                     data = JSON(code=UN_ERROR_CODE, status=False,
                                 message=UN_ERROR)
     return HttpResponse(data, content_type="application/json")
