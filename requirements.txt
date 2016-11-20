@@ -1,2 +1,3 @@
 django-compat
 pymysql
+django-cors-headers

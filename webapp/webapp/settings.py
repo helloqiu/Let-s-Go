@@ -58,7 +58,7 @@ MIDDLEWARE_CLASSES = [
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
-SESSION_COOKIE_DOMAIN = 'letsgo.lc4t.me'
+SESSION_COOKIE_DOMAIN = 'localhost'
 # SESSION_COOKIE_HTTPONLY = False
 ROOT_URLCONF = 'webapp.urls'
 AUTH_USER_MODEL = "app.AppUser"
@@ -86,7 +86,6 @@ WSGI_APPLICATION = 'webapp.wsgi.application'
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 DATABASES = {
     'default': {
-        'NAME': 'letsgo',
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'db.sqlite3'
     },
