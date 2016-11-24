@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
-from app.models import Label, Place, Guide
+from app.models import Label, Place, Guide, Question, Answer
 from hashlib import md5
 import json
 import re
@@ -17,6 +17,8 @@ QUERY_OK_CODE = 203
 QUERY_OK = ''
 ADD_OK_CODE = 203
 ADD_OK = 'Add success'
+GET_OK_CODE = 204
+GET_OK = ''
 HAD_LOGIN_CODE = 301
 HAD_LOGIN = 'Had logined'
 NOT_LOGIN_CODE = 301
@@ -51,6 +53,10 @@ PLACE_ERR_CODE = 428
 PLACE_ERR = 'The Place Error'
 LABEL_ERR_CODE = 429
 LABEL_ERR = 'The Label Error'
+NAME_ERR_CODE = 430
+NAME_ERR = 'Name Error'
+NAME_NEX_CODE = 431
+NAME_NEX = 'Name Not exists'
 INVALIED_CODE = 501
 INVALIED = 'Not support this method'
 UN_ERROR_CODE = 502
@@ -82,7 +88,6 @@ def user_login(request):
     if request.user.is_authenticated():
         data = JSON(code=HAD_LOGIN_CODE, status=True, message=HAD_LOGIN)
         return HttpResponse(data, content_type="application/json")
-
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -193,8 +198,28 @@ def guide_add(request):
     return HttpResponse(data, content_type="application/json")
 
 
-def guide_id(request):
-    pass
+def guide_id(request, _id):
+    if request.user.is_authenticated():
+        try:
+            guide = Guide.objects.filter(id=_id)[0]
+            labels = []
+            for l in guide.label.all():
+                labels.append(l.name)
+            submit = str(guide.submit.strftime('%Y-%m-%d %H:%M:%S'))
+            result = {'title': guide.name, 'username': guide.user.username,
+                      'place': guide.place.name, 'labels': labels,
+                      'start_time': str(guide.start_time),
+                      'end_time': str(guide.end_time),
+                      'content': guide.content, 'submit': submit,
+                      'pageview': guide.pageview}
+            guide.pageview += 1
+            guide.save()
+            data = JSON(code=GET_OK_CODE, status=True, message=result)
+        except IndexError:
+            data = JSON(code=ID_ERR_CODE, status=False, message=ID_ERR)
+    else:
+        data = JSON(code=NOT_LOGIN_CODE, status=False, message=NOT_LOGIN)
+    return HttpResponse(data, content_type="application/json")
 
 
 def guide_list(request):
@@ -203,7 +228,7 @@ def guide_list(request):
             start = int(request.POST.get('start'))
             offset = int(request.POST.get('offset'))
             try:
-                ans = Guide.objects.order_by('-submit')[start:start + offset]
+                ans = Guide.objects.order_by('-id')[start:start + offset]
             except IndexError:
                 ans = []
             result = []
@@ -214,9 +239,6 @@ def guide_list(request):
                 m = md5()
                 m.update(i.user.email.encode())
                 img = 'http://gravatar.eqoe.cn/avatar/%s?size=48&default=identicon&rating=pg' % (m.hexdigest())
-                # _ = JSON(id=i.id, username=i.user.username, title=i.name,
-                #          place=i.place.name, pageview=i.pageview, label=label,
-                #          img=img)
                 _ = {'id': i.id, 'username': i.user.username, 'title': i.name,
                      'place': i.place.name, 'pageview': i.pageview,
                      'labels': labels, 'img': img}
@@ -230,15 +252,113 @@ def guide_list(request):
 
 
 def question_add(request):
-    pass
+    if request.user.is_authenticated():
+        if request.method == 'POST':
+            title = request.POST.get('title')
+            content = request.POST.get('content')
+            place = request.POST.get('place')
+            label = request.POST.getlist('label[]')
+
+            if len(title) == 0:
+                data = JSON(code=TITLE_ERR_CODE, status=False,
+                            message=TITLE_ERR)
+            elif len(place) == 0:
+                data = JSON(code=PLACE_ERR_CODE, status=False,
+                            message=PLACE_ERR)
+            elif not Place.objects.filter(id=place):
+                data = JSON(code=PLACE_ERR_CODE, status=False,
+                            message=PLACE_ERR)
+            else:
+                label = Label.objects.filter(id__in=label)
+                a = Question(title=title, user=request.user,
+                             place=Place.objects.get(id=place),
+                             content=content)
+                a.save()
+                a.label.add(*label)
+                data = JSON(code=ADD_OK_CODE, status=True, message=ADD_OK)
+        else:
+            data = JSON(code=INVALIED_CODE, status=False, message=INVALIED)
+    else:
+        data = JSON(code=NOT_LOGIN_CODE, status=False, message=NOT_LOGIN)
+    return HttpResponse(data, content_type="application/json")
 
 
-def question_id(request, id):
-    pass
+def question_id(request, _id):
+    if request.user.is_authenticated():
+        try:
+            question = Question.objects.filter(id=_id)[0]
+            labels = []
+            for l in question.label.all():
+                labels.append(l.name)
+
+            answers = []
+            for i in Answer.objects.filter(question=question).order_by('-submit'):
+                m = md5()
+                m.update(i.user.email.encode())
+                img = 'http://gravatar.eqoe.cn/avatar/%s?size=48&default=identicon&rating=pg' % (m.hexdigest())
+                _submit = str(i.submit.strftime('%Y-%m-%d %H:%M:%S'))
+                _ = {'id': i.id, 'username': i.user.username, 'img': img,
+                     'content': i.content, 'submit': _submit}
+                answers.append(_)
+            submit = str(question.submit.strftime('%Y-%m-%d %H:%M:%S'))
+            result = {'title': question.title,
+                      'username': question.user.username,
+                      'place': question.place.name, 'labels': labels,
+                      'content': question.content, 'submit': submit,
+                      'answer': answers}
+            data = JSON(code=GET_OK_CODE, status=True, message=result)
+        except IndexError:
+            data = JSON(code=ID_ERR_CODE, status=False, message=ID_ERR)
+    else:
+        data = JSON(code=NOT_LOGIN_CODE, status=False, message=NOT_LOGIN)
+    return HttpResponse(data, content_type="application/json")
+
+
+def question_comment(request, _id):
+    if request.user.is_authenticated():
+        if request.method == 'POST':
+            content = request.POST.get('content')
+        try:
+            question = Question.objects.filter(id=_id)[0]
+            answer = Answer(user=request.user, question=question,
+                            content=content)
+            answer.save()
+            data = JSON(code=ADD_OK_CODE, status=True, message=ADD_OK)
+        except IndexError:
+            data = JSON(code=ID_ERR_CODE, status=False, message=ID_ERR)
+    else:
+        data = JSON(code=NOT_LOGIN_CODE, status=False, message=NOT_LOGIN)
+    return HttpResponse(data, content_type="application/json")
 
 
 def question_list(request):
-    pass
+    if request.user.is_authenticated():
+        if request.method == 'POST':
+            start = int(request.POST.get('start'))
+            offset = int(request.POST.get('offset'))
+            try:
+                ans = Question.objects.order_by('-id')[start:start + offset]
+            except IndexError:
+                ans = []
+            result = []
+            for i in ans:
+                labels = []
+                for l in i.label.all():
+                    labels.append(l.name)
+                m = md5()
+                m.update(i.user.email.encode())
+                ans_count = len(Answer.objects.filter(question=i))
+                img = 'http://gravatar.eqoe.cn/avatar/%s?size=48&default=identicon&rating=pg' % (m.hexdigest())
+                _ = {'id': i.id, 'username': i.user.username, 'title': i.title,
+                     'place': i.place.name, 'answer': ans_count,
+                     'labels': labels, 'img': img}
+                result.append(_)
+            data = JSON(code=QUERY_OK_CODE, status=True, message=result)
+        else:
+            data = JSON(code=INVALIED_CODE, status=False, message=INVALIED)
+    else:
+        data = JSON(code=NOT_LOGIN_CODE, status=False, message=NOT_LOGIN)
+    return HttpResponse(data, content_type="application/json")
 
 
 def __id(request, _id, model):
@@ -278,12 +398,39 @@ def label_list(request):
     return __list(request, Label)
 
 
+def user_add_place(request):
+    if request.user.is_authenticated():
+        if request.method == 'POST':
+            if 'name' in request.POST:
+                name = request.POST.get('name')
+                if len(name) == 0:
+                    data = data = JSON(code=NAME_ERR_CODE, status=True,
+                                       message=NAME_ERR)
+                elif not Place.objects.filter(name=name):
+                    data = JSON(code=NAME_NEX_CODE, status=False,
+                                message=NAME_NEX)
+                else:
+                    request.user.place.add(Place.objects.get(name=name))
+                    data = JSON(code=ADD_OK_CODE, status=True, message=ADD_OK)
+            else:
+                data = JSON(code=KEY_ERR_CODE, status=False, message=KEY_ERR)
+        else:
+            data = JSON(code=INVALIED_CODE, status=False, message=INVALIED)
+    else:
+        data = JSON(code=NOT_LOGIN_CODE, status=False, message=NOT_LOGIN)
+    return HttpResponse(data, content_type="application/json")
+
+
 def __add(request, model):
     if request.user.is_authenticated():
         if request.method == 'POST':
             if 'name' in request.POST:
                 name = request.POST.get('name')
-                if model.objects.filter(name=name):
+
+                if len(name) == 0:
+                    data = data = JSON(code=NAME_ERR_CODE, status=True,
+                                       message=NAME_ERR)
+                elif model.objects.filter(name=name):
                     data = JSON(code=NAME_EX_CODE, status=False,
                                 message=NAME_EX)
                 else:
@@ -300,8 +447,22 @@ def __add(request, model):
 
 
 def label_add(request):
-    __add(request, Label)
+    return __add(request, Label)
 
 
 def place_add(request):
-    __add(request, Place)
+    return __add(request, Place)
+
+
+def user_info(request):
+    if request.user.is_authenticated():
+        I = request.user
+        places = []
+        for l in I.place.all():
+            places.append(l.name)
+        result = {'username': I.username, 'id': I.id,
+                  'places': places, 'birthday': I.birthday, 'gender': I.gender}
+        data = JSON(code=GET_OK_CODE, status=True, message=result)
+    else:
+        data = JSON(code=NOT_LOGIN_CODE, status=False, message=NOT_LOGIN)
+    return HttpResponse(data, content_type="application/json")

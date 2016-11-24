@@ -19,4 +19,7 @@ urlpatterns = [
     url(r'question/list/$', views.question_list),
     url(r'question/add/$', views.question_add),
     url(r'question/(\d{1,})/$', views.question_id),
+    url(r'user/info/$', views.user_info),
+    url(r'user/place/$', views.user_add_place),
+    url(r'question/(\d{1,})/comment/$', views.question_comment),
 ]
