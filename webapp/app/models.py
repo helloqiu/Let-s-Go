@@ -1,3 +1,4 @@
+import django
 from django.db import models
 from django.db.models import CharField, DateField, ManyToManyField, ForeignKey, TextField, DateTimeField, IntegerField
 from django.contrib.auth.models import AbstractUser, UserManager
@@ -48,7 +49,8 @@ class Guide(models.Model):
     start_time = DateField('start_time', null=False)
     end_time = DateField('end_time', null=False)
     content = TextField('content', null=False)
-    submit = DateTimeField('submit', auto_now=True)
+    submit = DateTimeField('submit', blank=True,
+                           default=django.utils.timezone.now)
     pageview = IntegerField('pageview', default=0, db_index=True)
     praise = IntegerField('praise', default=0, db_index=True)
     label = ManyToManyField('Label', blank=True)
@@ -65,7 +67,8 @@ class Question(models.Model):
     place = ForeignKey('Place', null=False, db_index=True)
     title = CharField('title', max_length=255, null=False)
     content = TextField('content', null=False)
-    submit = DateTimeField('submit', auto_now=True)
+    submit = DateTimeField('submit', blank=True,
+                           default=django.utils.timezone.now)
     label = ManyToManyField('Label', blank=True)
 
     def __str__(self):
@@ -73,6 +76,21 @@ class Question(models.Model):
 
     class Meta:
         ordering = ['user', 'title', 'place']
+
+
+class Answer(models.Model):
+    user = ForeignKey('AppUser', null=False, db_index=True)
+
+    question = ForeignKey('Question', null=False, db_index=True, blank=False)
+    content = TextField('content', null=False)
+    submit = DateTimeField('submit', blank=True,
+                           default=django.utils.timezone.now)
+
+    def __str__(self):
+        return '[%s]@%s' % (self.submit, self.user.username)
+
+    class Meta:
+        ordering = ['user']
 
 
 class Wish(models.Model):
