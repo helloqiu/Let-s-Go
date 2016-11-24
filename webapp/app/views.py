@@ -461,7 +461,8 @@ def user_info(request):
         for l in I.place.all():
             places.append(l.name)
         result = {'username': I.username, 'id': I.id,
-                  'places': places, 'birthday': I.birthday, 'gender': I.gender}
+                  'places': places, 'birthday': str(I.birthday),
+                  'gender': I.gender}
         data = JSON(code=GET_OK_CODE, status=True, message=result)
     else:
         data = JSON(code=NOT_LOGIN_CODE, status=False, message=NOT_LOGIN)
